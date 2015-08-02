@@ -1,4 +1,3 @@
-
 $(function () {
 	'use strict';
 
@@ -23,7 +22,7 @@ $(function () {
 
     tagName: 'li',
 
-    template: _.template( '<div class="img-holder"><img src="https://farm<%= farm %>.staticflickr.com/<%= server %>/<%= id %>_<%= secret %>.jpg" /></div><div class="img-content"><h3><%= title %></h3></div>' ),
+    template: _.template( '<div class="img-holder"><a href="#<%= id %>"><img src="https://farm<%= farm %>.staticflickr.com/<%= server %>/<%= id %>_<%= secret %>.jpg" /></div><div class="img-content"><h3><%= title %></h3></div></a>' ),
 
     initialize: function ( options ) {
       if ( options ) {
@@ -39,7 +38,7 @@ $(function () {
 
   var FlickrList = Backbone.View.extend({
 
-    el: $('article ul'),
+    // el: $('article ul'),
 
     initialize: function() {
       _.bindAll(this, 'render');
@@ -64,6 +63,9 @@ $(function () {
 
   });
 
+	var article = document.getElementById( 'photo-list' );
   var FlickrCollectionInstance = new FlickrCollection();
   var FlickrView = new FlickrList();
+
+	FlickrView.setElement( article );
 });
