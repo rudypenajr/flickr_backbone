@@ -1,6 +1,23 @@
 $(function () {
 	'use strict';
 
+	var Sidebar = Backbone.View.extend({
+
+		tagName: 'ul',
+
+		template: _.template( '<li><a href="#<%= id %>"><%= title %></a></li>' ),
+
+    render: function () {
+			for ( var i = 0; i < this.model.length; i++ ) {
+				var currentModel = this.model.models[i];
+				this.$el.append( this.template( currentModel.attributes ) );
+			}
+
+			return this;
+    }
+
+  });
+
   var FlickrModel = Backbone.Model.extend({});
 
   var FlickrCollection = Backbone.Collection.extend({
@@ -22,7 +39,7 @@ $(function () {
 
     tagName: 'li',
 
-    template: _.template( '<div class="img-holder"><a href="#<%= id %>"><img src="https://farm<%= farm %>.staticflickr.com/<%= server %>/<%= id %>_<%= secret %>.jpg" /></div><div class="img-content"><h3><%= title %></h3></div></a>' ),
+    template: _.template( '<div class="img-holder"><img src="https://farm<%= farm %>.staticflickr.com/<%= server %>/<%= id %>_<%= secret %>.jpg" /></div><div class="img-content"><h3><%= title %></h3></div>' ),
 
     initialize: function ( options ) {
       if ( options ) {
@@ -31,6 +48,7 @@ $(function () {
     },
 
     render: function () {
+			this.$el.attr( 'id', this.model.get( 'id' ) );
       this.$el.html( this.template( this.model.toJSON() ) );
       return this;
     }
@@ -38,21 +56,22 @@ $(function () {
 
   var FlickrList = Backbone.View.extend({
 
-    // el: $('article ul'),
-
     initialize: function() {
       _.bindAll(this, 'render');
 
       FlickrCollectionInstance.fetch({
         success: function(response, xhr) {
-          FlickrView.render();
+          FlickrListView.render();
+
+					var aside = document.getElementsByTagName( 'aside' );
+					$(aside).append( SidebarView.render().$el );
         }
       });
     },
 
     render: function() {
-      for ( var i = 0; i < FlickrCollectionInstance.length; i++ ) {
-        var currentModel = FlickrCollectionInstance.models[i];
+      for ( var i = 0; i < this.model.length; i++ ) {
+        var currentModel = this.model.models[i];
         var flickrItem = new FlickrItem( { model: currentModel } );
 
         this.$el.append( flickrItem.render().el );
@@ -63,9 +82,10 @@ $(function () {
 
   });
 
-	var article = document.getElementById( 'photo-list' );
+	var ul = document.getElementById( 'photo-list' );
   var FlickrCollectionInstance = new FlickrCollection();
-  var FlickrView = new FlickrList();
+  var FlickrListView = new FlickrList( { model: FlickrCollectionInstance } );
+	var SidebarView = new Sidebar( { model: FlickrCollectionInstance } );
 
-	FlickrView.setElement( article );
+	FlickrListView.setElement( ul );
 });
